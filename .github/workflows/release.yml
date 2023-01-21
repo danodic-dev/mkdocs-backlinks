@@ -1,0 +1,60 @@
+name: pypi release
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+[ab]?'
+jobs:
+  release:
+    needs:
+      - test_and_scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+          cache: 'pipenv'
+      - name: Install pipenv
+        run: pipx install pipenv
+      - name: Build
+        run: pipenv run python -m build
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: mkdocs-backlinks ${{ github.ref }}
+          body_path: RELEASE.md
+          draft: false
+          prerelease: false
+      - name: Set python package name
+        run: echo "PACKAGE_FILENAME=./dist/mkdocs-backlinks-"$(echo $GITHUB_REF | cut -d'v' -f 2)".tar.gz" >> $GITHUB_ENV
+      - name: Upload Python Package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.PACKAGE_FILENAME }}
+          asset_name: ${{ env.PACKAGE_FILENAME }}
+          asset_content_type: application/gzip
+      - name: Set python wheel name
+        run: echo "WHEEL_FILENAME=./dist/minumtium-"$(echo $GITHUB_REF | cut -d'v' -f 2)"-py3-none-any.whl" >> $GITHUB_ENV
+      - name: Upload Python Wheel
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ env.WHEEL_FILENAME }}
+          asset_name: ${{ env.WHEEL_FILENAME }}
+          asset_content_type: application/x-wheel+zip
+      - name: PyPI release
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
