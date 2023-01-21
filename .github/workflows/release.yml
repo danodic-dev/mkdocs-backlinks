@@ -43,7 +43,7 @@ jobs:
           asset_name: ${{ env.PACKAGE_FILENAME }}
           asset_content_type: application/gzip
       - name: Set python wheel name
-        run: echo "WHEEL_FILENAME=./dist/minumtium-"$(echo $GITHUB_REF | cut -d'v' -f 2)"-py3-none-any.whl" >> $GITHUB_ENV
+        run: echo "WHEEL_FILENAME=./dist/mkdocs-backlinks-"$(echo $GITHUB_REF | cut -d'v' -f 2)"-py3-none-any.whl" >> $GITHUB_ENV
       - name: Upload Python Wheel
         uses: actions/upload-release-asset@v1
         env:
