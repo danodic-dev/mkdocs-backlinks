@@ -8,6 +8,9 @@ mkdocs = "*"
 beautifulsoup4 = "*"
 
 [dev-packages]
+autopep8 = "*"
+twine = "*"
+build = "*"
 
 [requires]
 python_version = "3"
