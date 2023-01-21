@@ -16,6 +16,8 @@ jobs:
           cache: 'pipenv'
       - name: Install pipenv
         run: pipx install pipenv
+      - name: Setup Environment
+        run: pipenv install --dev
       - name: Build
         run: pipenv run python -m build
       - name: Create Release
