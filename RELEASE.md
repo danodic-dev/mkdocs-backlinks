@@ -1,5 +1,5 @@
-## mkdocs-backlinks v0.9.0
+## mkdocs-backlinks v0.9.1
 
-### Added
+### Changed
 
-- Initial release. It generates backlinks.
+- Add missing dependency.
