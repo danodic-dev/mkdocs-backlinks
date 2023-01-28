@@ -16,7 +16,8 @@ setup(
     license='MIT',
     python_requires='>=3.10',
     install_requires=[
-        'mkdocs>=1.4.2'
+        'mkdocs>=1.4.2',
+        'beautifulsoup4>=4.11.1'
     ],
     classifiers=[
         'Development Status :: 4 - Beta',
