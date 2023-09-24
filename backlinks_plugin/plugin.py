@@ -29,7 +29,7 @@ class LinkScraper:
         named anchor and will not point to an external page.
         :return: a list of valid links.
         """
-        links = BeautifulSoup(self.html).find_all('a')
+        links = BeautifulSoup(self.html, feature='lxml').find_all('a')
         return self.__remove_invalid_links(links)
 
     def __remove_invalid_links(self, links):
