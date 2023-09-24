@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name='mkdocs-backlinks',
-    version='0.9.1',
+    version='0.9.2',
     description='A MkDocs plugin for adding backlinks to your documentation pages.',
     long_description=long_description,
     long_description_content_type="text/markdown",
