@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## v0.9.2
+
+### Changed
+
+- Now supports links which have been changed when `use_directory_urls` was enabled.
+
+---
+
 ## v0.9.1
 
 ### Changed

@@ -66,7 +66,14 @@ class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
         self.files_dict = self.__create_file_dict(files.documentation_pages())
         return files
 
-    def on_page_content(self, html, page, config, files):
+    def on_nav(self, nav, config: MkDocsConfig, files: Files):
+        if config.use_directory_urls:
+            for key in self.files_dict.copy():
+                newkey = self.files_dict[key].dest_uri.replace("index.html", '')
+                self.files_dict[newkey] = self.files_dict.pop(key)
+        return nav
+
+    def on_page_content(self, html, page: Page, config: MkDocsConfig, files: Files):
         for link in LinkScraper(html).links():
             href = link.attrs["href"]
             destination_link = self.__normalize_link(href, page.url)
@@ -149,7 +156,7 @@ class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
         """
         return {file.url: file for file in files}
 
-    def on_page_context(self, context, page, config, nav):
+    def on_page_context(self, context, page: Page, config: MkDocsConfig, nav):
         files = context["pages"]
         self.__assign_backlinks_to_page_context(page.url, files, context)
         return context
