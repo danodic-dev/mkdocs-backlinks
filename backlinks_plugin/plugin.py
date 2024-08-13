@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from dataclasses import dataclass
 from typing import List, Dict, Sequence, Any, Optional
 
@@ -29,7 +30,7 @@ class LinkScraper:
         named anchor and will not point to an external page.
         :return: a list of valid links.
         """
-        links = BeautifulSoup(self.html).find_all('a')
+        links = BeautifulSoup(self.html, features="lxml").find_all('a')
         return self.__remove_invalid_links(links)
 
     def __remove_invalid_links(self, links):
@@ -50,6 +51,7 @@ class LinkScraper:
 
 class BacklinksPluginConfig(Config):
     ignored_pages = ListOfItems(Type(str), default=[])
+    ignored_regex = ListOfItems(Type(str), default=[])
 
 
 class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
@@ -58,9 +60,12 @@ class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
     def __init__(self):
         super().__init__()
         self.files_dict = {}
+        self.ignored_regex_objects = []
 
     def on_pre_build(self, *, config: MkDocsConfig) -> None:
         logging.info(f"Excluded pages for backlinking: {self.config.ignored_pages}")
+        logging.info(f"Excluded regex for backlinking: {self.config.ignored_regex}")
+        self.ignored_regex_objects = self.__construct_regex_objects(self.config.ignored_regex)
 
     def on_files(self, files: Files, *, config: MkDocsConfig) -> Optional[Files]:
         self.files_dict = self.__create_file_dict(files.documentation_pages())
@@ -93,6 +98,14 @@ class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
 
         obj.backlinks.append(page)
 
+    def __construct_regex_objects(self, regexlist: list[str]) -> list[re.Pattern]:
+        """
+        Creates a list of regex objects based on the list of patterns provided as arguments.
+        :param regexlist: the list of regex patterns as provided in the config.
+        :return: a list of regex objects.
+        """
+        return [re.compile(item) for item in regexlist]
+
     def __is_excluded(self, page: Page) -> bool:
         """
         Checks is a page has been excluded in the configuration.
@@ -100,6 +113,9 @@ class BacklinksPlugin(BasePlugin[BacklinksPluginConfig]):
         :return: wheter the name of the page provided has been found inside
         the list of ignored pages.
         """
+        for regex_object in self.ignored_regex_objects:
+            if regex_object.search(page.title):
+                return True
         return page.title in self.config.ignored_pages
 
     def __has_backlinks(self, obj: Any) -> bool:
